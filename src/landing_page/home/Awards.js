@@ -2,8 +2,36 @@ import React from 'react';
 
 
 function Awards() {
-    return (  
-        <h1>Awards</h1>
+    return (
+        <div className='container mt-5'>
+            <div className='row '>
+                <div className='col-6'>
+                    <img src='/media/images/largestBroker.svg' />
+                </div>
+
+                <div className='col-6'>
+                    <h1>Largest stock broker in India</h1>
+                    <p> Tradeflow clients contribute in India daily by trading and investing in :</p>
+                    <div className='row'>
+                        <div className='col-6'>
+                            <ul>
+                                <li> <p>Futures and Options</p></li>
+                                <li> <p> Commodity Derivatives</p></li>
+                                <li> <p>Currency Derivatives </p></li>
+                            </ul>
+                        </div>
+                        <div className='col-6'>
+                            <ul>
+                                <li> <p>Stocks & IPOs</p></li>
+                                <li> <p> Direct mutual funds</p></li>
+                                <li> <p>Bonds and Gov. Securities </p></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <img src='/media/images/pressLogos.png'></img>
+                </div>
+            </div>
+        </div>
     );
 }
 
