@@ -1,22 +1,39 @@
 import React from 'react';
 
-
 function Education() {
     return (  
-       <div className="container mt-5">
-            <div className='row'>
-                <div className='col-6'>
-                    <img src = "media/images/education.svg" alt="Education"  style={{width : "70%"}}/>
-                </div>
-                <div className='col-6'>
-                    <h1 className='mb-3 fs-2'>Free and open market education</h1>
-                    <p className='mb-4'>Expand your knowledge with our comprehensive educational resources, designed to empower you with the skills and insights needed to navigate the markets with confidence.</p>
-                    <a href=''  style={{textDecoration:"none"}}> Education</a>
-
-                    <p className='mt-5'>TradingQ&A , the most active trading and investment community in india for all market related queries.</p>
-                    <a href=''  style={{textDecoration:"none"}}> TradingQ&A</a>
+       <div className="container section-padding">
+            <div className='row align-items-center'>
+                <div className='col-12 col-md-6 mb-5 mb-md-0 text-center text-md-start'>
+                    <img 
+                        src="/media/images/education_graphic.png" 
+                        alt="TradeFlow Academy" 
+                        className='img-fluid' 
+                        style={{ maxWidth: "75%" }} 
+                    />
                 </div>
                 
+                <div className='col-12 col-md-6'>
+                    <h1 className='mb-4 fs-2 fw-bold'>Master the markets with TradeFlow Academy</h1>
+                    
+                    <div className='mb-5'>
+                        <p className='text-muted mb-3'>
+                            From basics like "What is a stock?" to advanced algorithmic trading strategies, TradeFlow Academy provides completely free, high-quality financial education.
+                        </p>
+                        <a href='/academy' className='custom-link'>
+                            TradeFlow Academy <i className="fa fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div>
+                        <p className='text-muted mb-3'>
+                            Join the TradeFlow Community to discuss market trends, share strategies, and get your questions answered by thousands of active traders.
+                        </p>
+                        <a href='/community' className='custom-link'>
+                            TradeFlow Community <i className="fa fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     );

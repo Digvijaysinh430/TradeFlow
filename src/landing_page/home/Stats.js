@@ -2,27 +2,41 @@ import React from 'react';
 
 function Stats() {
     return (  
-        <div className='container p-3'>
-            <div className='row p-5'>
-                <div className='col-6 p-5'>
-                    <h1 className='fs-2 mb-5'>Trust with confidence</h1>
-                    <h2 className='fs-4'> Customer-first always</h2>
-                    <p className='text-muted'>Experience the difference that comes with choosing a customer-first approach.</p>
+        <div className='container section-padding'>
+            <div className='row align-items-center'>
+                <div className='col-12 col-lg-5 mb-5 mb-lg-0 pe-lg-5'>
+                    <h1 className='fs-2 mb-5 fw-bold'>An ecosystem designed for your financial flow.</h1>
+                    
+                    <div className='mb-4'>
+                        <h2 className='fs-4 fw-medium mb-2'>Fort Knox Security</h2>
+                        <p className='text-muted'>Military-grade encryption and biometric authentication ensure your portfolio is always safe.</p>
+                    </div>
 
-                    <h2 className='fs-4'> No spams or gimmicks</h2>
-                    <p className='text-muted'> No gimmicks , spams,gammification or annoying push notifications  </p>
+                    <div className='mb-4'>
+                        <h2 className='fs-4 fw-medium mb-2'>No-nonsense UI</h2>
+                        <p className='text-muted'>We cut the clutter. Execute trades with zero friction on interfaces built for power users but simple enough for beginners.</p>
+                    </div>
 
-                    <h2 className='fs-4'> Tradeflow universe</h2>
-                    <p className='text-muted'>Not just an app, but a complete ecosystem for traders.</p>
+                    <div className='mb-4'>
+                        <h2 className='fs-4 fw-medium mb-2'>The TradeFlow Universe</h2>
+                        <p className='text-muted'>Seamlessly sync your data between our mobile app, desktop terminal, and smartwatch dashboard. Your portfolio goes where you go.</p>
+                    </div>
 
-                     <h2 className='fs-4'>Do better with money</h2>
-                    <p className='text-muted'>With our advanced tools and insights, make smarter financial decisions.</p>
+                     <div className='mb-4'>
+                        <h2 className='fs-4 fw-medium mb-2'>Pro Analytics</h2>
+                        <p className='text-muted'>Unlock institutional-level charting, algorithmic backtesting, and AI-driven market sentiment indicators.</p>
+                    </div>
                 </div>
-                <div className='col-6 p-5'>
-                    <img src='media/images/ecosystem.png' alt='Ecosystem' style={{width:"75%"}} />
-                    <div className='text-center p-5'>
-                        <a href='' className='mx-5' style={{textDecoration:"none"}}>Explore our ecosystem</a>
-                        <a href=''  style={{textDecoration:"none"}}>Learn more</a>
+                
+                <div className='col-12 col-lg-7 text-center'>
+                    <img src='/media/images/ecosystem_graphic.png' alt='TradeFlow Ecosystem' className='img-fluid mb-4' style={{maxWidth: "90%"}} />
+                    <div className='d-flex justify-content-center gap-4 mt-3'>
+                        <a href='/products' className='custom-link'>
+                            Explore our products <i className="fa fa-arrow-right"></i>
+                        </a>
+                        <a href='/ecosystem' className='custom-link'>
+                            See the ecosystem <i className="fa fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
