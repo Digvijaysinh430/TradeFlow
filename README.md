@@ -23,10 +23,6 @@ Whether you're trading equities, diving into derivatives, or building a long-ter
 *   **Pro Analytics & Charting**: Institutional-level charting tools, real-time market sentiment indicators, and algorithmic backtesting capabilities.
 *   **Cross-Platform Sync**: A unified experience across the TradeFlow Web Terminal, Mobile App, and Smartwatch dashboards.
 
-### 🛡️ Security & Reliability
-*   **Fort Knox Security**: Military-grade encryption, biometric authentication (FaceID/TouchID), and rigorous infrastructure security.
-*   **Kill Switch & Nudges**: Proactive risk management tools that help you protect your capital and make smarter financial decisions.
-
 ### 📚 TradeFlow Academy
 *   **Comprehensive Education**: Completely free, high-quality financial education modules covering everything from the basics of the stock market to advanced options strategies.
 *   **Active Community**: Engage with thousands of active traders to discuss market trends and share insights.
