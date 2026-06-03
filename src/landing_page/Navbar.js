@@ -1,41 +1,128 @@
 import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+
+const NAV_LINKS = [
+  { to: "/signup", label: "Signup" },
+  { to: "/about", label: "About" },
+  { to: "/products", label: "Products" },
+  { to: "/pricing", label: "Pricing" },
+  { to: "/support", label: "Support" },
+];
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
+  const isActive = (path) =>
+    path === "/" ? pathname === "/" : pathname.startsWith(path);
+
   return (
-    <nav className={`tradeflow-navbar ${scrolled ? "scrolled" : ""}`}>
-      <div className="navbar-container">
-        <a href="/" className="navbar-logo">
-          <img src="/media/images/tradeflow_logo_light.png" alt="TradeFlow Logo" />
-        </a>
-        
-        <div className="navbar-links">
-          <a href="/signup" className="nav-link">Signup</a>
-          <a href="/about" className="nav-link">About</a>
-          <a href="/products" className="nav-link">Products</a>
-          <a href="/pricing" className="nav-link">Pricing</a>
-          <a href="/support" className="nav-link">Support</a>
+    <header>
+      <nav
+        className={`tradeflow-navbar ${scrolled ? "scrolled" : ""} ${
+          menuOpen ? "menu-open" : ""
+        }`}
+        aria-label="Main navigation"
+      >
+        <div className="navbar-container">
+          <Link to="/" className="navbar-logo" onClick={() => setMenuOpen(false)}>
+            <img
+              src="/media/images/logo.svg"
+              alt="TradeFlow"
+              className="site-logo site-logo--nav"
+              width="148"
+              height="36"
+            />
+          </Link>
+
+          <div className="navbar-center">
+            <div className="navbar-links">
+              {NAV_LINKS.map(({ to, label }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`nav-link ${isActive(to) ? "active" : ""}`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="navbar-actions">
+            <button type="button" className="btn-login">
+              Log In
+            </button>
+            <Link to="/signup" className="btn-signup">
+              Sign Up
+            </Link>
+          </div>
+
+          <button
+            type="button"
+            className="navbar-toggle"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span className="navbar-toggle-bar" />
+            <span className="navbar-toggle-bar" />
+            <span className="navbar-toggle-bar" />
+          </button>
         </div>
 
-        <div className="navbar-actions">
-           <button className="btn-login">Log In</button>
-           <button className="btn-signup">Sign Up</button>
+        <div
+          className={`navbar-mobile-panel ${menuOpen ? "open" : ""}`}
+          aria-hidden={!menuOpen}
+        >
+          <div className="navbar-mobile-links">
+            {NAV_LINKS.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className={`nav-link ${isActive(to) ? "active" : ""}`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+          <div className="navbar-mobile-actions">
+            <button type="button" className="btn-login">
+              Log In
+            </button>
+            <Link to="/signup" className="btn-signup">
+              Sign Up
+            </Link>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+      {menuOpen && (
+        <button
+          type="button"
+          className="navbar-backdrop"
+          aria-label="Close menu"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+    </header>
   );
 }
 

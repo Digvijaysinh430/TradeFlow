@@ -6,12 +6,12 @@ import Footer from '../Footer';
 
 function SupportPage() {
     return ( 
-        <div>  
-            <Navbar /> 
+        <>
+            <Navbar />
             <Hero />
             <RaiseTicket />
-            <Footer/>
-        </div>
+            <Footer />
+        </>
      );
 }
 
