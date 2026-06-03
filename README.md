@@ -1,9 +1,5 @@
 # TradeFlow 📈
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![React](https://img.shields.io/badge/React-18.x-blueviolet)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-success)
-
 **TradeFlow** is a modern, high-performance fintech platform designed to make trading and investing seamless, transparent, and accessible to everyone. Built with a pristine, light-themed aesthetic resembling industry-leading brokerages, TradeFlow provides an institutional-grade experience for retail investors.
 
 Whether you're trading equities, diving into derivatives, or building a long-term mutual fund portfolio, TradeFlow offers the tools, security, and speed you need.
@@ -136,10 +132,3 @@ We welcome contributions to make TradeFlow even better! If you'd like to contrib
 5. Open a Pull Request.
 
 ---
-
-## 📄 License
-
-This project is open-source and distributed under the [MIT License](LICENSE). 
-
----
-*Disclaimer: TradeFlow is a conceptual project designed for educational and portfolio purposes.*
