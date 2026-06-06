@@ -9,14 +9,14 @@ import Footer from '../Footer';
 
 function ProductPage() {
     return ( 
-        <div>
-            <Navbar/>
-            <Hero/>
-            <LeftSection/>
-            <RightSection/>
-            <Universe/>
-            <Footer/>
-        </div>
+        <>
+            <Navbar />
+            <Hero />
+            <LeftSection />
+            <RightSection />
+            <Universe />
+            <Footer />
+        </>
      );
 }
 

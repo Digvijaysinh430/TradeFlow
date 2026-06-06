@@ -1,9 +1,16 @@
-import React from 'react';
+import React from "react";
+import PageHero from "../common/PageHero";
 
 function Hero() {
-    return ( 
-        <h1>Hero</h1>
-     );
+  return (
+    <PageHero
+      eyebrow="Pricing"
+      title="Simple, honest pricing"
+      subtitle="No hidden fees. No surprises. Pay only for what you use."
+      ctaLabel="Open free account"
+      ctaTo="/signup"
+    />
+  );
 }
 
 export default Hero;

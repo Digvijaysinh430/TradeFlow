@@ -6,11 +6,12 @@ function Footer() {
             <div className="container">
                 <div className="row mb-5">
                     <div className="col-12 col-md-3 mb-4 mb-md-0">
-                        <img 
-                            src="/media/images/tradeflow_logo_light.png" 
-                            alt="TradeFlow Logo" 
-                            style={{ width: "150px" }} 
-                            className="mb-3"
+                        <img
+                            src="/media/images/logo.svg"
+                            alt="TradeFlow"
+                            className="site-logo site-logo--footer mb-3"
+                            width="140"
+                            height="33"
                         />
                         <p className="text-muted mt-3" style={{ fontSize: "0.85rem" }}>
                             © 2026, TradeFlow Broking Ltd.<br/>

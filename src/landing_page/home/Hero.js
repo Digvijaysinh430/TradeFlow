@@ -1,8 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 function Hero() {
     return (
-        <div className='container section-padding text-center mt-5'>
+        <div className='container section-padding text-center page-offset-nav'>
             <div className='row justify-content-center'>
                 <div className='col-12 col-md-10 col-lg-8'>
                     <img 
@@ -15,9 +16,9 @@ function Hero() {
                     <p className='lead text-muted mb-5'>
                         Experience lightning-fast execution, intuitive design, and deep analytics across all your devices. Welcome to TradeFlow.
                     </p>
-                    <button className='btn btn-primary btn-lg px-5 py-3 fs-5'>
+                    <Link to='/signup' className='btn btn-primary btn-lg px-5 py-3 fs-5'>
                         Start trading for free
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>
