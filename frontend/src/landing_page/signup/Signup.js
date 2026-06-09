@@ -124,9 +124,9 @@ function Signup() {
               </ul>
               <p className="signup-note text-muted">
                 Already have an account?{" "}
-                <button type="button" className="signup-inline-link">
+                <Link to="/login" className="signup-inline-link">
                   Log in
-                </button>
+                </Link>
               </p>
             </div>
 

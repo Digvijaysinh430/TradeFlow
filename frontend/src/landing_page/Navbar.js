@@ -43,7 +43,11 @@ function Navbar() {
         aria-label="Main navigation"
       >
         <div className="navbar-container">
-          <Link to="/" className="navbar-logo" onClick={() => setMenuOpen(false)}>
+          <Link
+            to="/"
+            className="navbar-logo"
+            onClick={() => setMenuOpen(false)}
+          >
             <img
               src="/media/images/logo.svg"
               alt="TradeFlow"
@@ -68,9 +72,9 @@ function Navbar() {
           </div>
 
           <div className="navbar-actions">
-            <button type="button" className="btn-login">
+            <Link to="/login" className="btn-login">
               Log In
-            </button>
+            </Link>
             <Link to="/signup" className="btn-signup">
               Sign Up
             </Link>
@@ -105,9 +109,9 @@ function Navbar() {
             ))}
           </div>
           <div className="navbar-mobile-actions">
-            <button type="button" className="btn-login">
+            <Link to="/login" className="btn-login">
               Log In
-            </button>
+            </Link>
             <Link to="/signup" className="btn-signup">
               Sign Up
             </Link>
