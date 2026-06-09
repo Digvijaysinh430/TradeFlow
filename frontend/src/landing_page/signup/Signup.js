@@ -16,6 +16,8 @@ function Signup() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -49,14 +51,46 @@ function Signup() {
     return next;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setServerError("");
+
     const nextErrors = validate();
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
     }
-    setSubmitted(true);
+
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: form.fullName,
+          email: form.email,
+          mobile: form.mobile,
+          password: form.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setServerError(
+          data.message || "Something went wrong. Please try again.",
+        );
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setSubmitted(true);
+    } catch (err) {
+      setServerError("Could not reach the server. Is the backend running?");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -69,8 +103,8 @@ function Signup() {
               <p className="signup-eyebrow">Get started</p>
               <h1 className="signup-title">Open your TradeFlow account</h1>
               <p className="signup-lead">
-                Join thousands of investors trading equities, F&amp;O, and mutual
-                funds on one seamless platform.
+                Join thousands of investors trading equities, F&amp;O, and
+                mutual funds on one seamless platform.
               </p>
               <ul className="signup-benefits">
                 <li>
@@ -105,8 +139,9 @@ function Signup() {
                     </div>
                     <h2>Application received</h2>
                     <p className="text-muted">
-                      Thanks, {form.fullName.split(" ")[0] || "there"}! We&apos;ll
-                      email you at <strong>{form.email}</strong> with next steps.
+                      Thanks, {form.fullName.split(" ")[0] || "there"}!
+                      We&apos;ll email you at <strong>{form.email}</strong> with
+                      next steps.
                     </p>
                     <Link to="/" className="btn btn-primary mt-3">
                       Back to home
@@ -123,6 +158,14 @@ function Signup() {
                       onSubmit={handleSubmit}
                       noValidate
                     >
+                      {serverError && (
+                        <div
+                          className="signup-error"
+                          style={{ marginBottom: "1rem" }}
+                        >
+                          {serverError}
+                        </div>
+                      )}
                       <div className="signup-field">
                         <label htmlFor="fullName">Full name</label>
                         <input
@@ -136,7 +179,9 @@ function Signup() {
                           className={errors.fullName ? "is-invalid" : ""}
                         />
                         {errors.fullName && (
-                          <span className="signup-error">{errors.fullName}</span>
+                          <span className="signup-error">
+                            {errors.fullName}
+                          </span>
                         )}
                       </div>
 
@@ -155,7 +200,9 @@ function Signup() {
                               className={errors.email ? "is-invalid" : ""}
                             />
                             {errors.email && (
-                              <span className="signup-error">{errors.email}</span>
+                              <span className="signup-error">
+                                {errors.email}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -177,7 +224,9 @@ function Signup() {
                               />
                             </div>
                             {errors.mobile && (
-                              <span className="signup-error">{errors.mobile}</span>
+                              <span className="signup-error">
+                                {errors.mobile}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -240,22 +289,34 @@ function Signup() {
                           />
                           <span>
                             I agree to TradeFlow&apos;s{" "}
-                            <button type="button" className="signup-inline-link">
+                            <button
+                              type="button"
+                              className="signup-inline-link"
+                            >
                               Terms
                             </button>{" "}
                             and{" "}
-                            <button type="button" className="signup-inline-link">
+                            <button
+                              type="button"
+                              className="signup-inline-link"
+                            >
                               Privacy Policy
                             </button>
                           </span>
                         </label>
                         {errors.agreeTerms && (
-                          <span className="signup-error">{errors.agreeTerms}</span>
+                          <span className="signup-error">
+                            {errors.agreeTerms}
+                          </span>
                         )}
                       </div>
 
-                      <button type="submit" className="btn btn-primary signup-submit w-100">
-                        Create account
+                      <button
+                        type="submit"
+                        className="btn btn-primary signup-submit w-100"
+                        disabled={loading}
+                      >
+                        {loading ? "Creating account..." : "Create account"}
                       </button>
                     </form>
                   </>
