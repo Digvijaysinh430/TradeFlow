@@ -6,6 +6,8 @@ import PricingPage from "./landing_page/pricing/PricingPage";
 import SupportPage from "./landing_page/support/SupportPage";
 import Signup from "./landing_page/signup/Signup";
 import Login from "./landing_page/login/Login";
+import Dashboard from "./landing_page/dashboard/Dashboard";
+import ProtectedRoute from "./landing_page/common/ProtectedRoute";
 
 function App() {
   return (
@@ -18,6 +20,7 @@ function App() {
         <Route path="/support" element={<SupportPage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}/>
       </Routes>
     </BrowserRouter>
   );

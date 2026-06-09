@@ -66,7 +66,7 @@ function Login() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       setServerError("Could not reach the server. Is the backend running?");
     } finally {
