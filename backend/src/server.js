@@ -3,7 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
-const tradeRoutes = require("./routes/tradeRoutes"); 
+const tradeRoutes = require("./routes/tradeRoutes");
+const portfolioRoutes = require("./routes/portfolioRoutes"); 
 
 const app = express();
 
@@ -22,7 +23,7 @@ app.get("/api/health", (req, res) => {
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/trade", tradeRoutes);
-
+app.use("/api/portfolio", portfolioRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
