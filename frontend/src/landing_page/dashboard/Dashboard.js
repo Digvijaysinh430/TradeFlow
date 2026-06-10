@@ -1,51 +1,143 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 
+const API_BASE = "http://localhost:5000/api";
+
+const formatINR = (n) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(n ?? 0);
+
 function Dashboard() {
   const [user, setUser] = useState(null);
+  const [portfolio, setPortfolio] = useState(null);
+  const [stocks, setStocks] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // trade form state
+  const [tradeSymbol, setTradeSymbol] = useState("");
+  const [tradeQty, setTradeQty] = useState("");
+  const [tradeError, setTradeError] = useState("");
+  const [tradeMessage, setTradeMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem("token");
-
-      try {
-        const res = await fetch("http://localhost:5000/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          // token invalid or expired — force re-login
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          navigate("/login");
-          return;
-        }
-
-        setUser(data.user);
-      } catch (err) {
-        setError("Could not reach the server. Is the backend running?");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
+  // shared auth-failure handler — mirrors the existing pattern
+  const handleAuthFailure = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
   }, [navigate]);
+
+  // load user, portfolio, and the tradable stock universe in parallel
+  const loadDashboard = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const [meRes, portfolioRes, stocksRes] = await Promise.all([
+        fetch(`${API_BASE}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_BASE}/portfolio`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_BASE}/stocks`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      if (meRes.status === 401 || portfolioRes.status === 401) {
+        handleAuthFailure();
+        return;
+      }
+
+      const meData = await meRes.json();
+      const portfolioData = await portfolioRes.json();
+      setUser(meData.user);
+      setPortfolio(portfolioData);
+
+      // stocks endpoint is optional — degrade gracefully if it 404s
+      if (stocksRes.ok) {
+        const stocksData = await stocksRes.json();
+        const list = Array.isArray(stocksData) ? stocksData : stocksData.stocks;
+        setStocks(list || []);
+        if (list && list.length > 0) {
+          setTradeSymbol(list[0].symbol);
+        }
+      }
+    } catch (err) {
+      setError("Could not reach the server. Is the backend running?");
+    } finally {
+      setLoading(false);
+    }
+  }, [handleAuthFailure]);
+
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
   };
+
+  const submitTrade = async (side) => {
+    setTradeError("");
+    setTradeMessage("");
+
+    const qty = Number(tradeQty);
+    if (!tradeSymbol) {
+      setTradeError("Select a stock.");
+      return;
+    }
+    if (!Number.isInteger(qty) || qty <= 0) {
+      setTradeError("Enter a whole quantity greater than zero.");
+      return;
+    }
+
+    setSubmitting(true);
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${API_BASE}/trade/${side}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ symbol: tradeSymbol, quantity: qty }),
+      });
+
+      if (res.status === 401) {
+        handleAuthFailure();
+        return;
+      }
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setTradeError(data.message || "Trade failed. Please try again.");
+        return;
+      }
+
+      setTradeMessage(data.message);
+      setTradeQty("");
+      // refresh portfolio so balances and holdings reflect the trade
+      await loadDashboard();
+    } catch (err) {
+      setTradeError("Could not reach the server. Is the backend running?");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const holdings = portfolio?.holdings || [];
 
   return (
     <>
@@ -77,30 +169,157 @@ function Dashboard() {
                 </button>
               </div>
 
+              {/* summary cards */}
               <div className="row g-4 mt-2">
                 <div className="col-md-4">
                   <div className="signup-card">
-                    <h2 className="signup-card-title">₹0.00</h2>
-                    <p className="text-muted">Virtual balance</p>
+                    <h2 className="signup-card-title">
+                      {formatINR(portfolio?.totalValue)}
+                    </h2>
+                    <p className="text-muted">Total value</p>
                   </div>
                 </div>
                 <div className="col-md-4">
                   <div className="signup-card">
-                    <h2 className="signup-card-title">0</h2>
+                    <h2 className="signup-card-title">
+                      {formatINR(portfolio?.cashBalance)}
+                    </h2>
+                    <p className="text-muted">Available cash</p>
+                  </div>
+                </div>
+                <div className="col-md-4">
+                  <div className="signup-card">
+                    <h2 className="signup-card-title">{holdings.length}</h2>
                     <p className="text-muted">Open positions</p>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="signup-card">
-                    <h2 className="signup-card-title">0</h2>
-                    <p className="text-muted">Watchlist items</p>
                   </div>
                 </div>
               </div>
 
-              <p className="text-muted mt-4">
-                Your trading tools will appear here as we build them out.
-              </p>
+              {/* trade panel */}
+              <div className="signup-card mt-4">
+                <h2 className="signup-card-title">Place an order</h2>
+                {tradeError && (
+                  <div className="signup-error" style={{ marginBottom: "1rem" }}>
+                    {tradeError}
+                  </div>
+                )}
+                {tradeMessage && (
+                  <div
+                    className="signup-success"
+                    style={{ marginBottom: "1rem", color: "#15803d" }}
+                  >
+                    {tradeMessage}
+                  </div>
+                )}
+                <div className="row g-3 align-items-end">
+                  <div className="col-12 col-md-5">
+                    <label htmlFor="tradeSymbol" className="form-label">
+                      Stock
+                    </label>
+                    <select
+                      id="tradeSymbol"
+                      className="form-select"
+                      value={tradeSymbol}
+                      onChange={(e) => setTradeSymbol(e.target.value)}
+                    >
+                      {stocks.length === 0 && (
+                        <option value="">No stocks available</option>
+                      )}
+                      {stocks.map((s) => (
+                        <option key={s.symbol} value={s.symbol}>
+                          {s.symbol} — {formatINR(s.lastPrice)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-12 col-md-3">
+                    <label htmlFor="tradeQty" className="form-label">
+                      Quantity
+                    </label>
+                    <input
+                      id="tradeQty"
+                      type="number"
+                      min="1"
+                      step="1"
+                      className="form-control"
+                      placeholder="0"
+                      value={tradeQty}
+                      onChange={(e) => setTradeQty(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-12 col-md-4 d-flex gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-primary w-100"
+                      disabled={submitting}
+                      onClick={() => submitTrade("buy")}
+                    >
+                      {submitting ? "..." : "Buy"}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary w-100"
+                      disabled={submitting}
+                      onClick={() => submitTrade("sell")}
+                    >
+                      {submitting ? "..." : "Sell"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* holdings table */}
+              <div className="signup-card mt-4">
+                <h2 className="signup-card-title">Your holdings</h2>
+                {holdings.length === 0 ? (
+                  <p className="text-muted mb-0">
+                    You don&apos;t own any stocks yet. Place your first order
+                    above.
+                  </p>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="table align-middle">
+                      <thead>
+                        <tr>
+                          <th>Symbol</th>
+                          <th className="text-end">Qty</th>
+                          <th className="text-end">Avg cost</th>
+                          <th className="text-end">LTP</th>
+                          <th className="text-end">Current value</th>
+                          <th className="text-end">P&amp;L</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {holdings.map((h) => {
+                          const positive = h.pnl >= 0;
+                          return (
+                            <tr key={h.symbol}>
+                              <td>{h.symbol}</td>
+                              <td className="text-end">{h.quantity}</td>
+                              <td className="text-end">
+                                {formatINR(h.avgBuyPrice)}
+                              </td>
+                              <td className="text-end">
+                                {formatINR(h.currentPrice)}
+                              </td>
+                              <td className="text-end">
+                                {formatINR(h.currentValue)}
+                              </td>
+                              <td
+                                className="text-end"
+                                style={{ color: positive ? "#15803d" : "#dc2626" }}
+                              >
+                                {formatINR(h.pnl)} ({positive ? "+" : ""}
+                                {h.pnlPercent}%)
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
