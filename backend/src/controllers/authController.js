@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Portfolio = require("../models/Portfolio");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -37,6 +38,8 @@ exports.signup = async (req, res) => {
       mobile,
       password: hashed,
     });
+
+    await Portfolio.create({ user: user._id });
 
     const token = signToken(user._id);
 
