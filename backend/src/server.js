@@ -7,11 +7,16 @@ const tradeRoutes = require("./routes/tradeRoutes");
 const portfolioRoutes = require("./routes/portfolioRoutes");
 const stockRoutes = require("./routes/stockRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
+const { startPriceJob } = require("./jobs/priceJob"); 
 
 const app = express();
 
 // connect to MongoDB
 connectDB();
+
+
+// start scheduled price refresh
+startPriceJob(); 
 
 // middleware
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000" }));

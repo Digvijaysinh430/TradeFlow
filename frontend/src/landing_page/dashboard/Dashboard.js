@@ -28,6 +28,7 @@ function Dashboard() {
   const [tradeError, setTradeError] = useState("");
   const [tradeMessage, setTradeMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const navigate = useNavigate();
 
@@ -93,6 +94,35 @@ function Dashboard() {
   useEffect(() => {
     loadDashboard();
   }, [loadDashboard]);
+
+  // auto-refresh the dashboard every 10 minutes so prices/P&L stay current
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      loadDashboard();
+    }, 10 * 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, [loadDashboard]);
+
+  // manual "refresh prices" — triggers a server-side price refresh, then reloads
+  const refreshPrices = async () => {
+    setRefreshing(true);
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${API_BASE}/stocks/refresh`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.status === 401) {
+        handleAuthFailure();
+        return;
+      }
+      await loadDashboard();
+    } catch (err) {
+      setError("Could not refresh prices. Is the backend running?");
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -172,13 +202,23 @@ function Dashboard() {
                     You&apos;re logged in as {user?.email}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={handleLogout}
-                >
-                  Log out
-                </button>
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={refreshPrices}
+                    disabled={refreshing}
+                  >
+                    {refreshing ? "Refreshing..." : "Refresh prices"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={handleLogout}
+                  >
+                    Log out
+                  </button>
+                </div>
               </div>
 
               {/* summary cards */}
