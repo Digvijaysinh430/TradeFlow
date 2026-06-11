@@ -1,5 +1,6 @@
 const Portfolio = require("../models/Portfolio");
 const Stock = require("../models/Stock");
+const Transaction = require("../models/Transaction");
 
 // POST /api/trade/buy  (protected)
 exports.buy = async (req, res) => {
@@ -10,7 +11,9 @@ exports.buy = async (req, res) => {
     if (!symbol || !Number.isInteger(qty) || qty <= 0) {
       return res
         .status(400)
-        .json({ message: "Symbol and a positive integer quantity are required" });
+        .json({
+          message: "Symbol and a positive integer quantity are required",
+        });
     }
 
     const stock = await Stock.findOne({ symbol: symbol.toUpperCase() });
@@ -46,6 +49,15 @@ exports.buy = async (req, res) => {
     portfolio.cashBalance -= cost;
     await portfolio.save();
 
+    await Transaction.create({
+      user: req.userId,
+      symbol: stock.symbol,
+      side: "BUY",
+      quantity: qty,
+      price: stock.lastPrice,
+      totalAmount: cost,
+    });
+
     res.json({
       message: `Bought ${qty} ${stock.symbol} @ ${stock.lastPrice}`,
       cashBalance: portfolio.cashBalance,
@@ -66,7 +78,9 @@ exports.sell = async (req, res) => {
     if (!symbol || !Number.isInteger(qty) || qty <= 0) {
       return res
         .status(400)
-        .json({ message: "Symbol and a positive integer quantity are required" });
+        .json({
+          message: "Symbol and a positive integer quantity are required",
+        });
     }
 
     const stock = await Stock.findOne({ symbol: symbol.toUpperCase() });
@@ -81,22 +95,31 @@ exports.sell = async (req, res) => {
 
     const holding = portfolio.holdings.find((h) => h.symbol === stock.symbol);
     if (!holding || holding.quantity < qty) {
-      return res
-        .status(400)
-        .json({ message: "Not enough shares to sell" });
+      return res.status(400).json({ message: "Not enough shares to sell" });
     }
 
     const proceeds = stock.lastPrice * qty;
+    const realizedPnl = (stock.lastPrice - holding.avgBuyPrice) * qty;
     holding.quantity -= qty;
 
     if (holding.quantity === 0) {
       portfolio.holdings = portfolio.holdings.filter(
-        (h) => h.symbol !== stock.symbol
+        (h) => h.symbol !== stock.symbol,
       );
     }
 
     portfolio.cashBalance += proceeds;
     await portfolio.save();
+
+    await Transaction.create({
+      user: req.userId,
+      symbol: stock.symbol,
+      side: "SELL",
+      quantity: qty,
+      price: stock.lastPrice,
+      totalAmount: proceeds,
+      realizedPnl,
+    });
 
     res.json({
       message: `Sold ${qty} ${stock.symbol} @ ${stock.lastPrice}`,

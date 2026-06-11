@@ -16,6 +16,8 @@ function Dashboard() {
   const [user, setUser] = useState(null);
   const [portfolio, setPortfolio] = useState(null);
   const [stocks, setStocks] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [txSummary, setTxSummary] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -40,7 +42,7 @@ function Dashboard() {
   const loadDashboard = useCallback(async () => {
     const token = localStorage.getItem("token");
     try {
-      const [meRes, portfolioRes, stocksRes] = await Promise.all([
+      const [meRes, portfolioRes, stocksRes, txRes] = await Promise.all([
         fetch(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
@@ -48,6 +50,9 @@ function Dashboard() {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch(`${API_BASE}/stocks`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_BASE}/transactions`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -70,6 +75,13 @@ function Dashboard() {
         if (list && list.length > 0) {
           setTradeSymbol(list[0].symbol);
         }
+      }
+
+      // transactions endpoint — degrade gracefully if unavailable
+      if (txRes.ok) {
+        const txData = await txRes.json();
+        setTransactions(txData.transactions || []);
+        setTxSummary(txData.summary || null);
       }
     } catch (err) {
       setError("Could not reach the server. Is the backend running?");
@@ -171,7 +183,7 @@ function Dashboard() {
 
               {/* summary cards */}
               <div className="row g-4 mt-2">
-                <div className="col-md-4">
+                <div className="col-md-3">
                   <div className="signup-card">
                     <h2 className="signup-card-title">
                       {formatINR(portfolio?.totalValue)}
@@ -179,7 +191,7 @@ function Dashboard() {
                     <p className="text-muted">Total value</p>
                   </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-3">
                   <div className="signup-card">
                     <h2 className="signup-card-title">
                       {formatINR(portfolio?.cashBalance)}
@@ -187,10 +199,26 @@ function Dashboard() {
                     <p className="text-muted">Available cash</p>
                   </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-3">
                   <div className="signup-card">
                     <h2 className="signup-card-title">{holdings.length}</h2>
                     <p className="text-muted">Open positions</p>
+                  </div>
+                </div>
+                <div className="col-md-3">
+                  <div className="signup-card">
+                    <h2
+                      className="signup-card-title"
+                      style={{
+                        color:
+                          (txSummary?.realizedPnl ?? 0) >= 0
+                            ? "#15803d"
+                            : "#dc2626",
+                      }}
+                    >
+                      {formatINR(txSummary?.realizedPnl)}
+                    </h2>
+                    <p className="text-muted">Realized P&amp;L</p>
                   </div>
                 </div>
               </div>
@@ -311,6 +339,79 @@ function Dashboard() {
                               >
                                 {formatINR(h.pnl)} ({positive ? "+" : ""}
                                 {h.pnlPercent}%)
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* order history */}
+              <div className="signup-card mt-4">
+                <h2 className="signup-card-title">Order history</h2>
+                {transactions.length === 0 ? (
+                  <p className="text-muted mb-0">
+                    No trades yet. Your order history will appear here.
+                  </p>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="table align-middle">
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Side</th>
+                          <th>Symbol</th>
+                          <th className="text-end">Qty</th>
+                          <th className="text-end">Price</th>
+                          <th className="text-end">Total</th>
+                          <th className="text-end">Realized P&amp;L</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {transactions.map((t) => {
+                          const isBuy = t.side === "BUY";
+                          const hasPnl =
+                            t.realizedPnl !== null &&
+                            t.realizedPnl !== undefined;
+                          const pnlPositive = (t.realizedPnl ?? 0) >= 0;
+                          return (
+                            <tr key={t._id}>
+                              <td>
+                                {new Date(t.createdAt).toLocaleString("en-IN", {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                })}
+                              </td>
+                              <td>
+                                <span
+                                  style={{
+                                    fontWeight: 600,
+                                    color: isBuy ? "#15803d" : "#dc2626",
+                                  }}
+                                >
+                                  {t.side}
+                                </span>
+                              </td>
+                              <td>{t.symbol}</td>
+                              <td className="text-end">{t.quantity}</td>
+                              <td className="text-end">{formatINR(t.price)}</td>
+                              <td className="text-end">
+                                {formatINR(t.totalAmount)}
+                              </td>
+                              <td
+                                className="text-end"
+                                style={{
+                                  color: !hasPnl
+                                    ? "inherit"
+                                    : pnlPositive
+                                    ? "#15803d"
+                                    : "#dc2626",
+                                }}
+                              >
+                                {hasPnl ? formatINR(t.realizedPnl) : "—"}
                               </td>
                             </tr>
                           );
