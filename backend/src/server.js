@@ -8,6 +8,7 @@ const portfolioRoutes = require("./routes/portfolioRoutes");
 const stockRoutes = require("./routes/stockRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const { startPriceJob } = require("./jobs/priceJob"); 
+const watchlistRoutes = require("./routes/watchlistRoutes");
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/api/trade", tradeRoutes);
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/stocks", stockRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/watchlist", watchlistRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

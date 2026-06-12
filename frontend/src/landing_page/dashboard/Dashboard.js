@@ -4,6 +4,7 @@ import Navbar from "../Navbar";
 import Footer from "../Footer";
 import AllocationChart from "./AllocationChart";
 import PnlChart from "./PnlChart";
+import Watchlist from "./Watchlist";
 
 const API_BASE = "http://localhost:5000/api";
 
@@ -20,6 +21,7 @@ function Dashboard() {
   const [stocks, setStocks] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [txSummary, setTxSummary] = useState(null);
+  const [watchlist, setWatchlist] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -45,7 +47,7 @@ function Dashboard() {
   const loadDashboard = useCallback(async () => {
     const token = localStorage.getItem("token");
     try {
-      const [meRes, portfolioRes, stocksRes, txRes] = await Promise.all([
+      const [meRes, portfolioRes, stocksRes, txRes, wlRes] = await Promise.all([
         fetch(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
@@ -56,6 +58,9 @@ function Dashboard() {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch(`${API_BASE}/transactions`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_BASE}/watchlist`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -85,6 +90,12 @@ function Dashboard() {
         const txData = await txRes.json();
         setTransactions(txData.transactions || []);
         setTxSummary(txData.summary || null);
+      }
+
+      // watchlist endpoint — degrade gracefully if unavailable
+      if (wlRes.ok) {
+        const wlData = await wlRes.json();
+        setWatchlist(wlData.watchlist || []);
       }
     } catch (err) {
       setError("Could not reach the server. Is the backend running?");
@@ -130,6 +141,46 @@ function Dashboard() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
+  };
+
+  // add a symbol to the watchlist, then reload
+  const addToWatchlist = async (symbol) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${API_BASE}/watchlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ symbol }),
+      });
+      if (res.status === 401) {
+        handleAuthFailure();
+        return;
+      }
+      await loadDashboard();
+    } catch (err) {
+      setError("Could not update watchlist. Is the backend running?");
+    }
+  };
+
+  // remove a symbol from the watchlist, then reload
+  const removeFromWatchlist = async (symbol) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${API_BASE}/watchlist/${symbol}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.status === 401) {
+        handleAuthFailure();
+        return;
+      }
+      await loadDashboard();
+    } catch (err) {
+      setError("Could not update watchlist. Is the backend running?");
+    }
   };
 
   const submitTrade = async (side) => {
@@ -263,6 +314,16 @@ function Dashboard() {
                     <p className="text-muted">Realized P&amp;L</p>
                   </div>
                 </div>
+              </div>
+
+              {/* watchlist */}
+              <div className="mt-4">
+                <Watchlist
+                  items={watchlist}
+                  stocks={stocks}
+                  onAdd={addToWatchlist}
+                  onRemove={removeFromWatchlist}
+                />
               </div>
 
               {/* trade panel */}

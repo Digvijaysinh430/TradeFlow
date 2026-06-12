@@ -19,7 +19,7 @@ const holdingSchema = new mongoose.Schema(
       min: 0,
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const portfolioSchema = new mongoose.Schema(
@@ -40,8 +40,12 @@ const portfolioSchema = new mongoose.Schema(
       type: [holdingSchema],
       default: [],
     },
+    watchlist: {
+      type: [String],
+      default: [],
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Portfolio", portfolioSchema);
