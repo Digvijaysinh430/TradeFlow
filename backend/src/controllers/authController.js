@@ -109,3 +109,80 @@ exports.me = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+// PATCH /api/auth/profile  (protected) — update name and/or mobile
+exports.updateProfile = async (req, res) => {
+  try {
+    const { fullName, mobile } = req.body;
+
+    if (!fullName && !mobile) {
+      return res
+        .status(400)
+        .json({ message: "Nothing to update" });
+    }
+
+    const updates = {};
+    if (fullName) updates.fullName = fullName.trim();
+    if (mobile) updates.mobile = mobile.trim();
+
+    const user = await User.findByIdAndUpdate(req.userId, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      message: "Profile updated",
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        mobile: user.mobile,
+      },
+    });
+  } catch (err) {
+    console.error("Update profile error:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// PATCH /api/auth/password  (protected) — change password
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Current and new password are required" });
+    }
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "New password must be at least 8 characters" });
+    }
+
+    // password is select:false, so explicitly include it
+    const user = await User.findById(req.userId).select("+password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match) {
+      return res
+        .status(401)
+        .json({ message: "Current password is incorrect" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ message: "Password changed successfully" });
+  } catch (err) {
+    console.error("Change password error:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+};

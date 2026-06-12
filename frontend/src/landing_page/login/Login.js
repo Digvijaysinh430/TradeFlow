@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
-import Footer from "../Footer";
 
 const INITIAL_FORM = {
   email: "",
@@ -77,7 +76,15 @@ function Login() {
   return (
     <>
       <Navbar />
-      <main className="signup-page page-offset-nav">
+      <main
+        className="signup-page page-offset-nav"
+        style={{
+          minHeight: "calc(100vh - 80px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-12 col-md-8 col-lg-5">
@@ -149,7 +156,6 @@ function Login() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

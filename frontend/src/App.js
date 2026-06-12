@@ -8,6 +8,7 @@ import Signup from "./landing_page/signup/Signup";
 import Login from "./landing_page/login/Login";
 import Dashboard from "./landing_page/dashboard/Dashboard";
 import ProtectedRoute from "./landing_page/common/ProtectedRoute";
+import Profile from "./landing_page/profile/Profile";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}/>
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

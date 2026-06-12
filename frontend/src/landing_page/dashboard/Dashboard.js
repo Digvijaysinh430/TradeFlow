@@ -264,6 +264,13 @@ function Dashboard() {
                   >
                     {refreshing ? "Refreshing..." : "Refresh prices"}
                   </button>
+                   <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => navigate("/profile")}
+                  >
+                    Profile
+                  </button>
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
