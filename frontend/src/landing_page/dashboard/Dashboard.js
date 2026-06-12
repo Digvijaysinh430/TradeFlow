@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
+import AllocationChart from "./AllocationChart";
+import PnlChart from "./PnlChart";
 
 const API_BASE = "http://localhost:5000/api";
 
@@ -335,6 +337,27 @@ function Dashboard() {
                   </div>
                 </div>
               </div>
+
+              {/* charts — only meaningful when there are holdings */}
+              {holdings.length > 0 && (
+                <div className="row g-4 mt-2">
+                  <div className="col-md-6">
+                    <div className="signup-card">
+                      <h2 className="signup-card-title">Allocation</h2>
+                      <AllocationChart
+                        holdings={holdings}
+                        cashBalance={portfolio?.cashBalance}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="signup-card">
+                      <h2 className="signup-card-title">P&amp;L by holding</h2>
+                      <PnlChart holdings={holdings} />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* holdings table */}
               <div className="signup-card mt-4">
