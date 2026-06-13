@@ -5,7 +5,6 @@ A full-stack paper-trading platform for the Indian stock market. Sign up with â‚
 Built with the MERN stack (MongoDB, Express, React, Node) as a demonstration of full-stack architecture, authentication, and deployment.
 
 **Live demo:** https://tradeflow-gamma.vercel.app
-**API:** https://tradeflow-backend-rbbq.onrender.com
 
 > Note: the backend runs on a free Render instance that sleeps after 15 minutes of inactivity, so the first request after a while can take ~30â€“50 seconds to wake. Subsequent requests are fast.
 
