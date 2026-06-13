@@ -1,5 +1,5 @@
 const cron = require("node-cron");
-const { refreshPrices } = require("../services/priceService");
+const { refreshPrices } = require("../services/PriceService");
 
 // Refresh prices every 10 minutes.
 const startPriceJob = () => {
