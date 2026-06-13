@@ -1,5 +1,5 @@
 const Stock = require("../models/Stock");
-const { refreshPrices } = require("../services/PriceService"); 
+const { refreshPrices } = require("../services/priceService"); 
 
 // GET /api/stocks  (protected)
 exports.getStocks = async (req, res) => {
