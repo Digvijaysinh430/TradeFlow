@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = `${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api`;
 
 function Profile() {
   const [user, setUser] = useState(null);
